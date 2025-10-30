@@ -1,0 +1,32 @@
+{
+  "name": "deltadom",
+  "version": "1.0.1",
+  "description": "DOM diffing and patching library with change detection",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "dom",
+    "diff",
+    "patch",
+    "virtual-dom",
+    "diffing",
+    "patching",
+    "dom-manipulation",
+    "change-detection",
+    "incremental-update"
+  ],
+  "author": "mynameisdmitriypavlov@gmail.com",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "bugs": {
+    "url": ""
+  },
+  "homepage": ""
+}
+

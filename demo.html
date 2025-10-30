@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeltaDOM Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .demo-section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .demo-section h2 {
+            color: #444;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+        
+        button.danger {
+            background: #dc3545;
+        }
+        
+        button.danger:hover {
+            background: #c82333;
+        }
+        
+        button.success {
+            background: #28a745;
+        }
+        
+        button.success:hover {
+            background: #218838;
+        }
+        
+        .output {
+            padding: 15px;
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            border-radius: 4px;
+            min-height: 100px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .stat-card {
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 4px;
+        }
+        
+        .stat-card h3 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .stat-card .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        
+        .log {
+            background: #2d2d2d;
+            color: #f0f0f0;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        
+        .log-entry {
+            margin-bottom: 5px;
+        }
+        
+        .log-entry.info { color: #61dafb; }
+        .log-entry.success { color: #5cb85c; }
+        .log-entry.warning { color: #f0ad4e; }
+        
+        .list-item {
+            padding: 10px;
+            background: white;
+            border: 1px solid #ddd;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .list-item:hover {
+            background: #f8f9fa;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 DeltaDOM Demo</h1>
+        
+        <!-- Demo 1: Text Updates -->
+        <div class="demo-section">
+            <h2>Demo 1: Text Content Updates</h2>
+            <div class="controls">
+                <button onclick="demo1.updateText()">Update Text</button>
+                <button onclick="demo1.reset()" class="danger">Reset</button>
+            </div>
+            <div id="demo1-output" class="output">
+                <p>Original text content</p>
+            </div>
+            <div class="stats">
+                <div class="stat-card">
+                    <h3>Total Updates</h3>
+                    <div class="value" id="demo1-updates">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Changes Applied</h3>
+                    <div class="value" id="demo1-changes">0</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Demo 2: List Operations -->
+        <div class="demo-section">
+            <h2>Demo 2: List Insertions & Deletions</h2>
+            <div class="controls">
+                <button onclick="demo2.addItem()" class="success">Add Item</button>
+                <button onclick="demo2.removeItem()" class="danger">Remove Item</button>
+                <button onclick="demo2.shuffle()">Shuffle</button>
+                <button onclick="demo2.reset()">Reset</button>
+            </div>
+            <div id="demo2-output" class="output"></div>
+            <div class="stats">
+                <div class="stat-card">
+                    <h3>List Size</h3>
+                    <div class="value" id="demo2-size">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Operations</h3>
+                    <div class="value" id="demo2-ops">0</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Demo 3: Attribute Changes -->
+        <div class="demo-section">
+            <h2>Demo 3: Attribute Updates</h2>
+            <div class="controls">
+                <button onclick="demo3.toggleClass()">Toggle Class</button>
+                <button onclick="demo3.changeStyle()">Change Style</button>
+                <button onclick="demo3.updateData()">Update Data Attribute</button>
+            </div>
+            <div id="demo3-output" class="output">
+                <div id="demo3-target" style="padding: 20px; background: #e3f2fd; border-radius: 4px;">
+                    Target Element
+                </div>
+            </div>
+        </div>
+        
+        <!-- Demo 4: Complex Nested Updates -->
+        <div class="demo-section">
+            <h2>Demo 4: Complex Nested Structure</h2>
+            <div class="controls">
+                <button onclick="demo4.updateDeep()">Deep Update</button>
+                <button onclick="demo4.addSection()" class="success">Add Section</button>
+                <button onclick="demo4.reset()" class="danger">Reset</button>
+            </div>
+            <div id="demo4-output" class="output"></div>
+        </div>
+        
+        <!-- Performance Log -->
+        <div class="demo-section">
+            <h2>📊 Performance Log</h2>
+            <div id="performance-log" class="log"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import DeltaDOM from './src/index.js';
+        
+        // Global logger
+        window.logPerformance = function(message, type = 'info') {
+            const log = document.getElementById('performance-log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            const timestamp = new Date().toLocaleTimeString();
+            entry.textContent = `[${timestamp}] ${message}`;
+            log.insertBefore(entry, log.firstChild);
+            
+            // Keep only last 50 entries
+            while (log.children.length > 50) {
+                log.removeChild(log.lastChild);
+            }
+        };
+        
+        // Demo 1: Text Updates
+        window.demo1 = {
+            deltaDOM: new DeltaDOM(),
+            updates: 0,
+            totalChanges: 0,
+            
+            updateText() {
+                const output = document.getElementById('demo1-output');
+                const newDiv = document.createElement('div');
+                const messages = [
+                    'Text has been updated!',
+                    'Another update here',
+                    'DeltaDOM efficiently handles this',
+                    'Only changed content is modified'
+                ];
+                newDiv.innerHTML = `<p>${messages[this.updates % messages.length]}</p>`;
+                
+                const start = performance.now();
+                const changes = this.deltaDOM.update(output, newDiv);
+                const time = (performance.now() - start).toFixed(2);
+                
+                this.updates++;
+                this.totalChanges += changes.length;
+                
+                document.getElementById('demo1-updates').textContent = this.updates;
+                document.getElementById('demo1-changes').textContent = this.totalChanges;
+                
+                logPerformance(`Demo 1: Applied ${changes.length} changes in ${time}ms`, 'success');
+            },
+            
+            reset() {
+                const output = document.getElementById('demo1-output');
+                output.innerHTML = '<p>Original text content</p>';
+                this.updates = 0;
+                this.totalChanges = 0;
+                document.getElementById('demo1-updates').textContent = '0';
+                document.getElementById('demo1-changes').textContent = '0';
+                logPerformance('Demo 1: Reset', 'info');
+            }
+        };
+        
+        // Demo 2: List Operations
+        window.demo2 = {
+            deltaDOM: new DeltaDOM(),
+            items: ['Item 1', 'Item 2', 'Item 3'],
+            nextId: 4,
+            totalOps: 0,
+            
+            render() {
+                const output = document.getElementById('demo2-output');
+                const newList = document.createElement('div');
+                
+                this.items.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'list-item';
+                    div.textContent = item;
+                    div.dataset.index = index;
+                    newList.appendChild(div);
+                });
+                
+                const start = performance.now();
+                const changes = this.deltaDOM.update(output, newList);
+                const time = (performance.now() - start).toFixed(2);
+                
+                this.totalOps += changes.length;
+                document.getElementById('demo2-size').textContent = this.items.length;
+                document.getElementById('demo2-ops').textContent = this.totalOps;
+                
+                logPerformance(`Demo 2: ${changes.length} operations in ${time}ms`, 'success');
+            },
+            
+            addItem() {
+                this.items.push(`Item ${this.nextId++}`);
+                this.render();
+            },
+            
+            removeItem() {
+                if (this.items.length > 0) {
+                    this.items.pop();
+                    this.render();
+                }
+            },
+            
+            shuffle() {
+                for (let i = this.items.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [this.items[i], this.items[j]] = [this.items[j], this.items[i]];
+                }
+                this.render();
+            },
+            
+            reset() {
+                this.items = ['Item 1', 'Item 2', 'Item 3'];
+                this.nextId = 4;
+                this.totalOps = 0;
+                this.render();
+            }
+        };
+        
+        // Demo 3: Attribute Updates
+        window.demo3 = {
+            deltaDOM: new DeltaDOM(),
+            hasClass: false,
+            styleIndex: 0,
+            dataValue: 0,
+            
+            toggleClass() {
+                const target = document.getElementById('demo3-target');
+                const newDiv = target.cloneNode(true);
+                
+                if (this.hasClass) {
+                    newDiv.classList.remove('active');
+                } else {
+                    newDiv.classList.add('active');
+                }
+                this.hasClass = !this.hasClass;
+                
+                const start = performance.now();
+                const changes = this.deltaDOM.diff(target, newDiv);
+                this.deltaDOM.patch(changes);
+                const time = (performance.now() - start).toFixed(2);
+                
+                logPerformance(`Demo 3: Class toggled in ${time}ms`, 'success');
+            },
+            
+            changeStyle() {
+                const target = document.getElementById('demo3-target');
+                const newDiv = target.cloneNode(true);
+                
+                const colors = ['#e3f2fd', '#f3e5f5', '#e8f5e9', '#fff3e0'];
+                this.styleIndex = (this.styleIndex + 1) % colors.length;
+                newDiv.style.background = colors[this.styleIndex];
+                
+                const start = performance.now();
+                const changes = this.deltaDOM.diff(target, newDiv);
+                this.deltaDOM.patch(changes);
+                const time = (performance.now() - start).toFixed(2);
+                
+                logPerformance(`Demo 3: Style changed in ${time}ms`, 'success');
+            },
+            
+            updateData() {
+                const target = document.getElementById('demo3-target');
+                const newDiv = target.cloneNode(true);
+                
+                this.dataValue++;
+                newDiv.dataset.value = this.dataValue;
+                
+                const start = performance.now();
+                const changes = this.deltaDOM.diff(target, newDiv);
+                this.deltaDOM.patch(changes);
+                const time = (performance.now() - start).toFixed(2);
+                
+                logPerformance(`Demo 3: Data attribute updated in ${time}ms`, 'success');
+            }
+        };
+        
+        // Demo 4: Complex Nested Updates
+        window.demo4 = {
+            deltaDOM: new DeltaDOM(),
+            sections: [
+                { title: 'Section 1', content: 'Content for section 1' },
+                { title: 'Section 2', content: 'Content for section 2' }
+            ],
+            
+            render() {
+                const output = document.getElementById('demo4-output');
+                const newDiv = document.createElement('div');
+                
+                this.sections.forEach((section, index) => {
+                    const sectionDiv = document.createElement('div');
+                    sectionDiv.style.cssText = 'padding: 15px; background: #f8f9fa; margin-bottom: 10px; border-radius: 4px;';
+                    
+                    const title = document.createElement('h3');
+                    title.textContent = section.title;
+                    title.style.marginBottom = '10px';
+                    
+                    const content = document.createElement('p');
+                    content.textContent = section.content;
+                    
+                    sectionDiv.appendChild(title);
+                    sectionDiv.appendChild(content);
+                    newDiv.appendChild(sectionDiv);
+                });
+                
+                const start = performance.now();
+                const changes = this.deltaDOM.update(output, newDiv);
+                const time = (performance.now() - start).toFixed(2);
+                
+                logPerformance(`Demo 4: Nested update with ${changes.length} changes in ${time}ms`, 'success');
+            },
+            
+            updateDeep() {
+                this.sections.forEach(section => {
+                    section.content = `Updated at ${new Date().toLocaleTimeString()}`;
+                });
+                this.render();
+            },
+            
+            addSection() {
+                const num = this.sections.length + 1;
+                this.sections.push({
+                    title: `Section ${num}`,
+                    content: `Content for section ${num}`
+                });
+                this.render();
+            },
+            
+            reset() {
+                this.sections = [
+                    { title: 'Section 1', content: 'Content for section 1' },
+                    { title: 'Section 2', content: 'Content for section 2' }
+                ];
+                this.render();
+            }
+        };
+        
+        // Initialize all demos
+        demo2.render();
+        demo4.render();
+        
+        logPerformance('DeltaDOM Demo initialized', 'info');
+    </script>
+</body>
+</html>
+
